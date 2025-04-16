@@ -1,79 +1,129 @@
 # 🎵 LyricQuest
 
-LyricQuest is a hybrid song search engine that allows users to search for songs based on **phrases from lyrics**, while also factoring in **song title relevance** and **user feedback (likes/dislikes)** to rank results. This is the end semester project for the course - 20XW86 Information Retrieval Lab.
+**LyricQuest** is a hybrid song search engine that allows users to search for songs based on **phrases from lyrics**, while also factoring in **song title relevance** and **user feedback (likes/dislikes)** to rank results.
+
+> 🎓 *End semester project for the course - 20XW86 Information Retrieval Lab*
 
 ---
 
 ## 🚀 Features
 
-- 🔍 **Lyrics + Title Based Search**: Users can search for songs using a line or phrase from the lyrics. The engine computes a weighted similarity using both the song **title** and **lyrics**.
-- 📊 **Feedback-Based Ranking**: Results are ranked not just by similarity, but also by **user interactions** (likes/dislikes). This makes search results adaptive to user preferences.
-- 📈 **Alpha-Beta Ranking Model**: Uses a customizable scoring formula:
+- 🔍 **Lyrics + Title Based Search**  
+  Search songs using a phrase from the lyrics. Relevance is calculated using both **lyrics** and **title** similarity.
 
-- 🎥 **YouTube Integration**: Displays a playable YouTube video for each recommended song.
-- 👍 👎 **User Interaction**: Users can like or dislike any song to improve future rankings for that specific search query.
-- 🌐 **Streamlit Interface**: Interactive, web-based frontend using Streamlit.
+- 📊 **Feedback-Based Ranking**  
+  Incorporates user interactions (likes/dislikes) into the result ranking, making it adaptive and user-personalized.
+
+- ⚖️ **Alpha-Beta Ranking Model**  
+  A flexible formula that balances similarity and user feedback:
+  ```
+  similarity_score = α * title_sim + (1 - α) * lyrics_sim  
+  final_score = β * similarity_score + (1 - β) * normalized_feedback
+  ```
+
+- 🎥 **YouTube Integration**  
+  Displays playable YouTube videos for the songs shown.
+
+- 👍 👎 **Like/Dislike System**  
+  Users can provide feedback to influence future search rankings.
+
+- 🌐 **Streamlit Interface**  
+  Fully interactive web-based interface built using Streamlit.
 
 ---
 
 ## 🛠️ Technologies Used
 
-- **Python**: Core backend and logic
-- **Streamlit**: UI development
-- **MySQL**: Persistent storage for song data and user feedback
-- **Pandas, NumPy, Scikit-learn**: Data processing and similarity computations
-- **NLTK**: Text preprocessing (stemming, tokenization)
+- **Python**: Core backend
+- **Streamlit**: User interface
+- **MySQL**: Database for songs and feedback
+- **Pandas / NumPy / Scikit-learn**: Data processing and TF-IDF calculations
+- **NLTK**: Text processing (tokenization, stemming)
 - **BeautifulSoup (BS4)**: YouTube video scraping
-- **Pickle**: For storing precomputed TF-IDF matrices
+- **Pickle**: Stores precomputed matrices
 - **Git**: Version control
 
 ---
 
 ## 📦 Installation
 
-To run LyricQuest locally:
+Follow these steps to set up LyricQuest locally:
 
-1. Clone the repository:
+1. **Clone the Repository**
 
+```bash
+git clone https://github.com/kanxshkk/LyricQuest-v2.git
+cd LyricQuest-v2
+```
 
-```git clone https://github.com/kanxshkk/LyricQuest.git
-cd LyricQuest```
+2. **Install Required Packages**
 
-2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-```pip install -r requirements.txt```
+3. **Configure MySQL Connection**
 
-3. Set up the MySQL database and configure credentials in app.py under connect_to_db() function.
+Open `app.py` and edit the `connect_to_db()` function with your credentials.
 
-4. Run the utils/ scripts (provided in the repo) to generate the required precomputed_data.pkl.
+4. **Generate Precomputed Data**
 
-5. Launch the application:
-```streamlit run app.py```
+Run the scripts inside the `utils/` directory to generate `precomputed_data.pkl`.
 
+5. **Run the App**
 
-**Working**
-1. Alpha-Beta Weighted Ranking Model
-α controls how much importance is given to title vs lyrics:
+```bash
+streamlit run app.py
+```
 
+---
+
+## ⚙️ Working Details
+
+### 🎯 Ranking Formula
+
+- **Title-Lyrics Similarity:**
+
+```
 similarity_score = α * title_sim + (1 - α) * lyrics_sim
+```
 
-β controls how much importance is given to similarity vs user feedback:
+- **Final Score with Feedback:**
 
+```
 final_score = β * similarity_score + (1 - β) * normalized(net_likes - net_dislikes)
+```
 
-2. Feedback Handling
-Each song-query pair is tracked.
+> Songs with no feedback default to a neutral value of **0.5** for fairness.
 
-Normalized feedback (net_likes - net_dislikes) is used for ranking.
+### 🔁 Feedback Handling
 
-For songs without feedback, a default value of 0.5 is used
+- Likes and dislikes are stored per `(user_query, song_id)` pair.
+- Normalized preference is used to update scores without bias from outliers.
 
+---
 
+## 👥 Contributors
 
+- 21PW10  
+- 21PW15  
+- 21PW22  
 
-**Contributors**
-21PW10
+---
 
-21PW15
+## 📌 Notes
 
-21PW22
+- Ensure you create your MySQL database with
+```bash
+CREATE TABLE user_interactions (
+    interaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    query VARCHAR(255) NOT NULL,
+    song_id INT,
+    like_count INT DEFAULT 0,
+    dislike_count INT DEFAULT 0,
+);
+```
+- The app uses BeautifulSoup to fetch YouTube video links — a working internet connection is required.
+- You can tune `alpha` and `beta` from the sidebar in the Streamlit interface for experimentation.
+
+---
